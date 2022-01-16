@@ -247,6 +247,30 @@
 
             <div v-if="isanswerhistory">
                 <h1 class="question__title answer__title"><span>質問の答え一覧</span>コミュニケーション能力診断結果</h1>
+                
+                <p class="answer__score">点数　<span>{{this.score}}/100</span></p>
+
+                <p class="question__gauge--title">聞く力:<span>{{this.score_h}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_h*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">説明力:<span>{{this.score_d}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_d*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">質問力:<span>{{this.score_q}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_q*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">協調力:<span>{{this.score_c}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_c*4+'%'}"></div>
+                </div>
+                <hr style="margin-top: 3rem;">
 
                 <div class="answerhistory" v-for="(item, i) in backup">
                     <h3>{{i+1}}、{{backup[i].name}}</h3>

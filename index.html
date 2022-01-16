@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="robots" content="noindex,nofollow">
+    <title>コミュニケーション能力診断 基礎編</title>
+
+    <!-- OGP -->
+    <meta property="og:title" content="コミュニケーション能力診断 基礎編">
+    <meta property="og:type" content="website">
+    <meta property="og:description" content="１分で簡単！コミュニケーション能力診断！">
+
+    <link href="http://fonts.googleapis.com/earlyaccess/notosansjp.css">
+    <link rel="stylesheet" href="style.css">
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue-longpress@1.0.2/dist/vue-longpress.min.js"></script>
+    <!-- チート用 -->
+
+</head>
+
+<body>
+
+    <div id="app" class="container">
+
+        <header>
+            <a href="index.html"><img class="logo" src="images/logo.png" alt="home"></a>
+
+            <div v-if="start">
+                <p :class="{red:basic, red_sp:basic}" @click="navi_basicbtn" v-show="this.basic">基礎編</p>
+                <p :class="{red:begin, red_sp:begin}" @click="navi_beginbtn" v-show="this.begin">初級編</p>
+                <p :class="{red:leader, red_sp:leader}" @click="navi_leaderbtn" v-show="this.leader">上級編</p>
+            </div>
+            <!-- ゲームスタート後に残す（掲示用） -->
+
+            <div v-if="!start">
+                <p class="difficulty" :class="{red:basic}" @click="navi_basicbtn">基礎編</p>
+                <p class="difficulty" :class="{red:begin}" @click="navi_beginbtn">初級編</p>
+                <p class="difficulty" :class="{red:leader}" @click="navi_leaderbtn">上級編</p>
+            </div>
+
+            <!-- ゲーム始まる前に設定用 -->
+
+        </header>
+
+
+        <div class="title_background" v-show="!start && this.basic">
+            <button @click="gamestart">Start!</button>
+        </div>
+        <!-- 新春タイトル基礎編 -->
+
+        <div class="title_background title_background--begin" v-show="!start && this.begin">
+            <button @click="gamestart">Start!</button>
+        </div>
+        <!-- 新春タイトル初級編 -->
+
+        <div class="title_background title_background--leader" v-show="!start && this.leader">
+            <button @click="gamestart">Start!</button>
+        </div>
+        <!-- 新春タイトル上級編 -->
+
+
+        <div class="question" v-if="start && questions.length && questions_begin.length && questions_leader.length" v-show="!this.cheat">
+
+            <div v-if="basic" class="question__title">
+                <h2>{{questions[0].name}}</h2>
+            </div>
+            <!-- 質問 -->
+
+            <div v-if="begin" class="question__title">
+                <h2>{{questions_begin[0].name}}</h2>
+            </div>
+            <!-- 質問 -->
+
+            <div v-if="leader" class="question__title">
+                <h2>{{questions_leader[0].name}}</h2>
+            </div>
+            <!-- 質問 -->
+
+
+
+
+            <div v-if="basic" class="question__content">
+                <button class="question__content--btn btna" @click="btnclick();btnValueA()">はい</button>
+                <button class="question__content--btn btnb" @click="btnclick();btnValueB()">どちらでもない</button>
+                <button class="question__content--btn btnc" @click="btnclick();btnValueC()">いいえ</button>
+            </div>
+            <!-- 選択肢 基礎編 -->
+
+            <div v-if="begin" class="question__content">
+                <button class="question__content--btn btna" @click="btnclick();btnValue_beginA()">はい</button>
+                <button class="question__content--btn btnb" @click="btnclick();btnValue_beginB()">どちらでもない</button>
+                <button class="question__content--btn btnc" @click="btnclick();btnValue_beginC()">いいえ</button>
+            </div>
+            <!-- 選択肢 初級編 -->
+
+            <div v-if="leader" class="question__content" :class="{'question__content--leader': leader}">
+                <button :class="{'question__content--btnleader': leader}" class="question__content--btn btna" @click="btnclick();btnValue_leaderA()">{{questions_leader[0].q1}}</button>
+                <button :class="{'question__content--btnleader': leader}" class="question__content--btn btnb" @click="btnclick();btnValue_leaderB()">{{questions_leader[0].q2}}</button>
+                <button :class="{'question__content--btnleader': leader}" class="question__content--btn btnc" @click="btnclick();btnValue_leaderC()">{{questions_leader[0].q3}}</button>
+            </div>
+            <!-- 選択肢 上級編 -->
+
+
+
+
+            <div v-if="basic" class="question__gauge">
+                <img class="question__gauge--logo" src="images/communicationlogo.png" alt="logo" :style="{'left': gaugeWidth+'%'}" :class="{rotate: isRotatation}">
+                <div :style="{'width': gaugeWidth+'%'}"></div>
+            </div>
+            <!-- ゲージ 基礎編-->
+
+            <div v-if="begin" class="question__gauge">
+                <img class="question__gauge--logo" src="images/communicationlogo.png" alt="logo" :style="{'left': gaugeWidth_begin+'%'}" :class="{rotate: isRotatation}">
+                <div :style="{'width': gaugeWidth_begin+'%'}"></div>
+            </div>
+            <!-- ゲージ 初級編-->
+
+            <div v-if="leader" class="question__gauge">
+                <img class="question__gauge--logo" src="images/communicationlogo.png" alt="logo" :style="{'left': gaugeWidth_leader+'%'}" :class="{rotate: isRotatation}">
+                <div :style="{'width': gaugeWidth_leader+'%'}"></div>
+            </div>
+            <!-- ゲージ 上級編-->
+
+
+            <p v-if="basic" class="question__count">残り {{questions.length}} 問</p>
+            <!-- 残り問題数　基礎編 -->
+            <p v-if="basic && questions.length < 12" class="question__count__button" @click="basicBack">＜ 戻る</p>
+            <!-- 戻るボタン　基礎編 -->
+
+
+            <p v-if="begin" class="question__count">残り {{questions_begin.length}} 問</p>
+            <!-- 残り問題数　初級編 -->
+            <p v-if="begin && questions_begin.length < 12" class="question__count__button" @click="beginBack">＜ 戻る</p>
+            <!-- 戻るボタン　初級編 -->
+
+            <p v-if="leader" class="question__count">残り {{questions_leader.length}} 問</p>
+            <!-- 残り問題数　上級編 -->
+            <p v-if="leader && questions_leader.length < 12" class="question__count__button leader_button" @click="leaderBack">＜ 戻る</p>
+            <!-- 戻るボタン　上級編 -->
+        </div>
+        <!-- 質問のdiv -->
+
+
+        <div class="question answer" v-if="!questions.length || !questions_begin.length || !questions_leader.length">
+
+            <div v-if="!result">
+                <h1 class="question__title answer__title"><span v-if="basic">基礎編</span><span v-if="begin">初級編</span><span v-if="leader">上級編</span>コミュニケーション能力診断結果</h1>
+
+                <p class="answer__score">点数　<span>{{this.score}}/100</span></p>
+
+                <p class="question__gauge--title">聞く力:<span>{{this.score_h}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_h*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">説明力:<span>{{this.score_d}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_d*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">質問力:<span>{{this.score_q}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_q*4+'%'}"></div>
+                </div>
+                <p class="question__gauge--title">協調力:<span>{{this.score_c}}/25</span></p>
+                <div class="question__gauge question__gauge--answer">
+                    <img class="question__gauge--logo">
+                    <div :style="{'width': score_c*4+'%'}"></div>
+                </div>
+                <hr>
+                <div class="answer__bottom">
+                    <p>診断お疲れ様です、<br class="spdn">あなたの<strong>コミュニケーションタイプ</strong>を確認しましょう！</p>
+                    <button @click="resultClick">分析結果</button>
+                </div>
+            </div>
+            <!-- ゲーム結果div -->
+
+
+            <div v-if="result && !issushitype && !isanswerhistory">
+                <h1 class="question__title answer__title"><span v-if="basic">基礎編</span><span v-if="begin">初級編</span><span v-if="leader">上級編</span>コミュニケーション能力診断結果</h1>
+
+                <p class="answer__score">あなたは <br class="pcdn">
+                    <span v-if="this.score > 80">{{this.sushitype[0]}}</span>
+                    <span v-else-if="this.score > 70">{{this.sushitype[1]}}</span>
+                    <span v-else-if="this.score > 50">{{this.sushitype[2]}}</span>
+                    <span v-else>{{this.sushitype[3]}}</span> タイプです
+                </p>
+
+                <div>
+                    <div v-if="this.score > 80" class="sushiimage">
+                        <img class="sushiimage__image sushiimage__image--big" src="images/ootoro_drew.png" alt="大トロ">
+                        <img class="sushiimage__image" src="images/ootoro.png" alt="大トロ">
+                    </div>
+
+                    <div v-else-if="this.score > 70" class="sushiimage">
+                        <img class="sushiimage__image" src="images/salmon_draw.png" alt="サーモン">
+                        <img class="sushiimage__image" src="images/salmon.png" alt="サーモン">
+                    </div>
+
+                    <div v-else-if="this.score > 50" class="sushiimage">
+                        <img class="sushiimage__image" src="images/tuna_draw.png" alt="マグロ">
+                        <img class="sushiimage__image" src="images/tuna.png" alt="マグロ">
+                    </div>
+
+                    <div v-else class="sushiimage">
+                        <img class="sushiimage__image" src="images/eggssushi_draw.png" alt="玉子">
+                        <img class="sushiimage__image" src="images/eggsushi.png" alt="玉子">
+                    </div>
+
+                    <p v-if="this.score > 80" class="answer__bottom sushitext">あなたのコミュニケーション能力が優秀で、<br class="spdn">大トロ寿司と同じく、貴重でみんなに好かれています。</p>
+                    <p v-else-if="this.score > 70" class="answer__bottom sushitext">あなたのコミュニケーション能力が高くて、<br class="spdn">サーモン寿司と同じく、危険な会話雰囲気から逃れます。</p>
+                    <p v-else-if="this.score > 50" class="answer__bottom sushitext">あなたのコミュニケーション能力がやや高くて、<br class="spdn">マグロ寿司と同じく、危険な会話雰囲気にはめられないよう注意してください。</p>
+                    <p v-else class="answer__bottom sushitext">あなたのコミュニケーション能力が普通で、<br class="spdn">玉子寿司と同じく、主役ではなく周りから気付かれないです。</p>
+
+                    <div class="sushibutton__warp">
+                        <button @click="allSushitype">全タイプ一覧</button>
+                        <button @click="answerHistory">診断答え履歴</button>
+                    </div>
+                </div>
+
+                <hr>
+                <div v-if="this.score > 70" class="answer__bottom">
+                    <p>こんな優秀なあなたに、<br class="spdn">コミュニケーション<strong>１級認定講座</strong>を紹介します！</p>
+                    <a target="_blank" href="https://www.ca-japan.org/course1.html"><button>講座紹介</button></a>
+                </div>
+
+                <div v-else-if="this.score > 50" class="answer__bottom">
+                    <p>更に上を目指しましょう！<br class="spdn">コミュニケーション<strong>準１級認定講座</strong>を紹介します！</p>
+                    <a target="_blank" href="https://www.ca-japan.org/course_s1.html"><button>講座紹介</button></a>
+                </div>
+
+                <div v-else class="answer__bottom">
+                    <p>また頑張りましょう！<br class="spdn">コミュニケーション<strong>２級認定講座</strong>を紹介します！</p>
+                    <a target="_blank" href="https://www.ca-japan.org/course2.html"><button>講座紹介</button></a>
+                </div>
+            </div>
+            <!-- ゲーム結果詳細分析div -->
+
+            <div v-if="isanswerhistory">
+                <h1 class="question__title answer__title"><span>質問の答え一覧</span>コミュニケーション能力診断結果</h1>
+
+                <div class="answerhistory" v-for="(item, i) in backup">
+                    <h3>{{i+1}}、{{backup[i].name}}</h3>
+                    <p>{{resultArray[i]}}</p>
+                </div>
+
+                <div class="sushibutton__warp">
+                    <button @click="backToResult">前のページに戻る</button>
+                </div>
+            </div>
+            <!-- 答え一覧 -->
+
+
+            <div v-if="issushitype">
+                <h1 class="question__title answer__title"><span>全タイプ一覧</span>コミュニケーション能力診断結果</h1>
+
+
+                <div class="sushitype__image">
+                    <img class="sushiimage__image2" src="images/ootoro_drew.png" alt="大トロ">
+                    <p><span>大トロタイプ</span><br>大トロ寿司、貴重でみんなに好かれています。<br class="spdn">雰囲気だけでも素敵です。<br class="spdn">コミュニケーション点数は８０点以上の人は大トロレベルです。</p>
+                </div>
+                <div class="sushitype__image">
+                    <img class="sushiimage__image2" src="images/salmon_draw.png" alt="サーモン">
+                    <p><span>サーモンタイプ</span><br>サーモン寿司、全世界に愛されます。<br class="spdn">賢くて、襲ってきたお箸から逃れます。<br class="spdn">コミュニケーション点数７０点以上の人はサーモンレベルです。</p>
+                </div>
+                <div class="sushitype__image">
+                    <img class="sushiimage__image2" src="images/tuna_draw.png" alt="マグロ">
+                    <p><span>マグロタイプ</span><br>マグロ寿司、好きな人が多いです。<br class="spdn">賢さはやや高いですが、お箸に掴められます。<br class="spdn">コミュニケーション点数５０点以上の人はマグロレベルです。</p>
+                </div>
+                <div class="sushitype__image">
+                    <img class="sushiimage__image2" src="images/eggssushi_draw.png" alt="玉子">
+                    <p><span>玉子タイプ</span><br>玉子寿司、定番で普通です。<br class="spdn">よくも悪くもない、寿司屋で一番安いもの。<br class="spdn">コミュニケーション点数５０点行かないの人は玉子レベルです。</p>
+                </div>
+
+                <img class="sushiall" src="images/sushiall.png" alt="寿司">
+
+                <div class="sushitext__bottom">
+                    <p><span>寿司家族</span><br>可愛い寿司の家族です。みんな仲良く並んでいて寢ってます。そこで、コミュニケーションの重要性が見えます。</p>
+                </div>
+
+                <div class="sushibutton__warp">
+                    <button @click="backToResult">前のページに戻る</button>
+                </div>
+            </div>
+            <!-- 答え一覧 -->
+
+
+
+
+        </div>
+
+
+
+
+
+
+        <div class="question answer" v-if="this.cheat">
+            <h1 class="question__title answer__title"><span class="cheat__result">チートですが。。。</span>満点おめでとうございます！</h1>
+
+            <p class="answer__score">点数　<span>100/100</span></p>
+
+            <p class="question__gauge--title">聞く力:<span>25/25</span></p>
+            <div class="question__gauge question__gauge--answer">
+                <img class="question__gauge--logo">
+                <div :style="{'width': 100+'%'}"></div>
+            </div>
+            <p class="question__gauge--title">説明力:<span>25/25</span></p>
+            <div class="question__gauge question__gauge--answer">
+                <img class="question__gauge--logo">
+                <div :style="{'width': 100+'%'}"></div>
+            </div>
+            <p class="question__gauge--title">質問力:<span>25/25</span></p>
+            <div class="question__gauge question__gauge--answer">
+                <img class="question__gauge--logo">
+                <div :style="{'width': 100+'%'}"></div>
+            </div>
+            <p class="question__gauge--title">協調力:<span>25/25</span></p>
+            <div class="question__gauge question__gauge--answer">
+                <img class="question__gauge--logo">
+                <div :style="{'width': 100+'%'}"></div>
+            </div>
+            <hr>
+            <div class="answer__bottom">
+                <p>こんな優秀なあなたに、コミュニケーション認定講座はもうないです！<br>
+                    <span class="cheattext2">１級(70点以上)、準１級(50点以上)、２級(0点以上)、チート(案内なし)</span></p>
+            </div>
+        </div>
+        <!-- チート用 -->
+
+
+        <footer>
+            <longpress v-if="!start" ref="btn" class="cheatbtn" duration="2" :on-confirm="doCheat" pressing-text="{$rcounter} 秒後にチートします" action-text="チート中です・・・">Copyright © 2022 Hsu Ting-Wei <br class="pcdn"><span class="cheattext">(長押しでチート)</span></longpress>
+            <!-- チート用 -->
+        </footer>
+    </div>
+
+
+    <script>
+        const VueLongpress = window['VueLongpress'];
+
+        new Vue({
+
+            el: "#app",
+            components: {
+                longpress: VueLongpress,
+            },
+            // チート用
+
+            data: {
+                start: false,
+                isRotatation: false,
+
+                basic: true,
+                begin: false,
+                leader: false,
+                cheat: false,
+                // 基礎、初期、上級診断コントロール
+
+                result: false,
+                issushitype: false,
+                isanswerhistory: false,
+
+
+
+                score: 0,
+                // 総合得点
+                score_h: 0,
+                // 聞く力
+                score_d: 0,
+                // 説明力
+                score_q: 0,
+                // 質問力
+                score_c: 0,
+                // 協調力
+
+
+                selection: "",
+                resultArray: [],
+
+                backup: [],
+                backupscore: [],
+
+                sushitype: ["大トロ寿司", "サーモン寿司", "マグロ寿司", "玉子寿司"],
+
+                // はい：a
+                // いいえ：b
+                // どちらでもない：c
+
+                questions: [{
+                        id: 1,
+                        name: `まったく知らない分野の話を聞くのは、
+                    正直苦手・・面倒だと感じる`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 2,
+                        name: `自分より年齢が上の人、
+                    下の人でもコミュニケーションがとれる方だ`,
+                        a: 9,
+                        b: 5,
+                        c: 2
+                    },
+                    {
+                        id: 3,
+                        name: `悩みごとの相談をよく持ちかけられる`,
+                        a: 8,
+                        b: 4,
+                        c: 1
+                    },
+                    {
+                        id: 4,
+                        name: `何かを伝えると、質問されたり確認されることが多い`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 5,
+                        name: `話しの要点がずれてしまう、
+                    伝えたいことがうまく伝わらないことがある`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 6,
+                        name: `会議やミーティングでまとめ役・
+                    司会、進行役を頼まれることが多い`,
+                        a: 9,
+                        b: 5,
+                        c: 2
+                    },
+                    {
+                        id: 7,
+                        name: `初対面の人とでも、話しを引き出すことが得意な方だ`,
+                        a: 8,
+                        b: 4,
+                        c: 1
+                    },
+                    {
+                        id: 8,
+                        name: `興味のない話題になると、
+                    話しが発展させられず気まずくなることがある`,
+                        a: 2,
+                        b: 5,
+                        c: 9
+                    },
+                    {
+                        id: 9,
+                        name: `こちらの質問に対して、
+                    相手からの答えのポイントがずれていることがよくある`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 10,
+                        name: `今まで付き合ったことのないタイプの人と、
+                    どう接して良いかわからない`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 11,
+                        name: `自分の主張が正しいと思ったら、
+                    徹底して説得・議論する方だ`,
+                        a: 2,
+                        b: 5,
+                        c: 9
+                    },
+                    {
+                        id: 12,
+                        name: `集団行動、チームプレーでは、
+                    いつも浮いてしまう、衝突してしまう`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                ],
+                // 基礎編の質問
+
+                questions_begin: [{
+                        id: 1,
+                        name: `後輩、同僚から相談を持ちかけられて
+                        「あなたに話して良かった」とよく言われる`,
+                        a: 9,
+                        b: 5,
+                        c: 2
+                    },
+                    {
+                        id: 2,
+                        name: `相手の話の途中で、自分の意見を切り出すことがある`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 3,
+                        name: `相手の話、上司の指示の要点を
+                        的確にまとめることができる`,
+                        a: 8,
+                        b: 4,
+                        c: 1
+                    },
+                    {
+                        id: 4,
+                        name: `後輩に仕事を教えても、なかなか覚えて貰えない`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 5,
+                        name: `電話やメールで依頼した仕事。
+                        上がってくる内容が的外れな場合が多い`,
+                        a: 2,
+                        b: 5,
+                        c: 9
+                    },
+                    {
+                        id: 6,
+                        name: `説明をする時に、比較的専門用語が多い`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 7,
+                        name: `上司の指示が理解できないが、
+                        どう質問すれば良いかわからない`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 8,
+                        name: `後輩がトラブルで慌てている。
+                        的確に状況を聞き出し解決に導くことができる`,
+                        a: 9,
+                        b: 5,
+                        c: 2
+                    },
+                    {
+                        id: 9,
+                        name: `知りたいことはそれじゃないんだけれど・・・
+                        思うことが多い`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 10,
+                        name: `極論は、リーダーさえ目標や進捗を把握していれば、
+                        プロジェクトは達成できる`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 11,
+                        name: `尊敬・信頼できないリーダーからの指示には従いたくない`,
+                        a: 1,
+                        b: 4,
+                        c: 8
+                    },
+                    {
+                        id: 12,
+                        name: `日頃から、同僚や後輩の仕草や表情、
+                        声のトーンの変化を気にかけている`,
+                        a: 9,
+                        b: 5,
+                        c: 2
+                    },
+                ],
+                // 初級編の質問
+
+                questions_leader: [{
+                        id: 1,
+                        name: `部下それぞれの強みや能力、携わりたい業務について`,
+                        q1: `定期的に把握する機会を設けている`,
+                        q2: `人によっては把握している`,
+                        q3: `どちらかと言えば把握していない`,
+                        a: 8,
+                        b: 1,
+                        c: 4
+                    },
+                    {
+                        id: 2,
+                        name: `会議の場での、部下からの発言や雰囲気は`,
+                        q1: `積極的に発言があり良い雰囲気である`,
+                        q2: `意見を求めると発言する`,
+                        q3: `どちらとも言えない、あるいは発言する人が偏る`,
+                        a: 8,
+                        b: 1,
+                        c: 4
+                    },
+                    {
+                        id: 3,
+                        name: `部下の細かな表情、言葉の変化に対して`,
+                        q1: `意識的に気にかけている`,
+                        q2: `意識していない`,
+                        q3: `どちらとも言えない`,
+                        a: 9,
+                        b: 2,
+                        c: 5
+                    },
+                    {
+                        id: 4,
+                        name: `部下の仕事や目標に対するモチベーションについて`,
+                        q1: `高めることができている`,
+                        q2: `全体的にモチベーションが低い`,
+                        q3: `ムラがある、人によって違う`,
+                        a: 8,
+                        b: 1,
+                        c: 4
+                    },
+                    {
+                        id: 5,
+                        name: `大事なプレゼンの日に、部下が大遅刻！`,
+                        q1: `まずは怒りの感情をぶつける`,
+                        q2: `遅刻を改善するように叱る`,
+                        q3: `何も言わないで気付かせる`,
+                        a: 1,
+                        b: 8,
+                        c: 4
+                    },
+                    {
+                        id: 6,
+                        name: `自分が忙しくて手が回らない時に、あなたの部下は`,
+                        q1: `何かできることがないかと聞いてくる`,
+                        q2: `指示を出せば動いてくれる`,
+                        q3: `自分も忙しいからと断る`,
+                        a: 9,
+                        b: 5,
+                        c: 1
+                    },
+                    {
+                        id: 7,
+                        name: `部下がミスをして落ち込み、
+                        効率が低下している。あなたが掛ける言葉の傾向は？`,
+                        q1: `「なぜできなかったのか？」と原因を追及する`,
+                        q2: `「どうしたらできる？」と尋ねる`,
+                        q3: `気分転換に飲みにつれていく`,
+                        a: 1,
+                        b: 8,
+                        c: 4
+                    },
+                    {
+                        id: 8,
+                        name: `何度言っても同じミスを繰り返す部下に対して`,
+                        q1: `同じことを根気よく言い続ける`,
+                        q2: `言うのをあきらめる`,
+                        q3: `何が原因かを話し合う`,
+                        a: 4,
+                        b: 1,
+                        c: 8
+                    },
+                    {
+                        id: 9,
+                        name: `問題が起きた時に、あなたの部下は`,
+                        q1: `クレームになるまで報告が上がってこない`,
+                        q2: `すぐに報告が来る`,
+                        q3: `どちらとも言えない`,
+                        a: 2,
+                        b: 9,
+                        c: 5
+                    },
+                    {
+                        id: 10,
+                        name: `普段、部下からの報告や相談を受ける時、
+                        面と向かって話しを聞いている`,
+                        q1: `意識してそうしている`,
+                        q2: `基本、メールなどでしか受けない`,
+                        q3: `パソコン、作業をしながら聞く`,
+                        a: 8,
+                        b: 1,
+                        c: 4
+                    },
+                    {
+                        id: 11,
+                        name: `忙しい時に後輩・部下から相談を持ちかけられる。
+                        あなたの対応は？`,
+                        q1: `今はそれどころではないと断る`,
+                        q2: `空気を読んで改めるように伝える`,
+                        q3: `今の状況を伝えて、後で話しを聞く時間を取ると約束する`,
+                        a: 4,
+                        b: 1,
+                        c: 8
+                    },
+                    {
+                        id: 12,
+                        name: `部下の趣味、プライベート、仕事以外の悩みを聞いたことがある`,
+                        q1: `持ちかけられれば聞くようにしている`,
+                        q2: `仕事には関係ないので聞かない`,
+                        q3: `積極的に聞き出している`,
+                        a: 9,
+                        b: 2,
+                        c: 5
+                    },
+                ],
+                // 上級編の質問
+
+
+            },
+            computed: {
+                gaugeWidth() {
+                    // return (this.questions[0].id - 1) * 100 / 11
+                    return (this.backup.length) * 100 / 11
+
+                },
+                // 橙色のゲージの進み
+
+                gaugeWidth_begin() {
+                    // return (this.questions_begin[0].id - 1) * 100 / 11
+                    return (this.backup.length) * 100 / 11
+                },
+                // 橙色のゲージの進み
+
+                gaugeWidth_leader() {
+                    // return (this.questions_leader[0].id - 1) * 100 / 11
+                    return (this.backup.length) * 100 / 11
+                }
+                // 橙色のゲージの進み
+
+
+            },
+            methods: {
+
+                gamestart: function () {
+                    this.start = true
+                },
+                // ゲームスタート
+
+                btnclick: function () {
+                    this.isRotatation = true
+                    const countUp = () => {
+                        this.isRotatation = false;
+                    }
+                    setTimeout(countUp, 600);
+                },
+                // ロゴを回す
+
+                navi_basicbtn: function () {
+                    this.basic = true
+                    this.begin = false
+                    this.leader = false
+                },
+
+                navi_beginbtn: function () {
+                    this.basic = false
+                    this.begin = true
+                    this.leader = false
+                },
+
+                navi_leaderbtn: function () {
+                    this.basic = false
+                    this.begin = false
+                    this.leader = true
+                },
+                // ナビで難易度レベルを変わる
+
+
+                btnValueA: function () {
+
+                    this.selection = "はい"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions[0])
+                    this.backupscore.push(this.questions[0].a)
+
+                    this.score += this.questions[0].a
+                    if (this.questions.length > 9) {
+                        this.score_h += this.questions[0].a
+                    } else if (this.questions.length > 6) {
+                        this.score_d += this.questions[0].a
+                    } else if (this.questions.length > 3) {
+                        this.score_q += this.questions[0].a
+                    } else {
+                        this.score_c += this.questions[0].a
+                    }
+
+                    this.questions.shift()
+                },
+                btnValueB: function () {
+
+                    this.selection = "どちらでもない"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions[0])
+                    this.backupscore.push(this.questions[0].b)
+
+                    this.score += this.questions[0].b
+                    if (this.questions.length > 9) {
+                        this.score_h += this.questions[0].b
+                    } else if (this.questions.length > 6) {
+                        this.score_d += this.questions[0].b
+                    } else if (this.questions.length > 3) {
+                        this.score_q += this.questions[0].b
+                    } else {
+                        this.score_c += this.questions[0].b
+                    }
+                    this.questions.shift()
+                },
+                btnValueC: function () {
+
+                    this.selection = "いいえ"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions[0])
+                    this.backupscore.push(this.questions[0].c)
+
+                    this.score += this.questions[0].c
+                    if (this.questions.length > 9) {
+                        this.score_h += this.questions[0].c
+                    } else if (this.questions.length > 6) {
+                        this.score_d += this.questions[0].c
+                    } else if (this.questions.length > 3) {
+                        this.score_q += this.questions[0].c
+                    } else {
+                        this.score_c += this.questions[0].c
+                    }
+                    this.questions.shift()
+                },
+
+                basicBack: function () {
+                    this.questions.unshift(this.backup[this.backup.length - 1])
+                    this.backup.pop()
+                    this.resultArray.pop()
+
+                    this.score -= this.backupscore[this.backup.length]
+
+                    if (this.backup.length < 3) {
+                        this.score_h -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 6) {
+                        this.score_d -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 9) {
+                        this.score_q -= this.backupscore[this.backup.length]
+                    } else {
+                        this.score_c -= this.backupscore[this.backup.length]
+                    }
+
+                    this.backupscore.pop()
+                },
+                // 基礎編
+
+
+                btnValue_beginA: function () {
+
+                    this.selection = "はい"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_begin[0])
+                    this.backupscore.push(this.questions_begin[0].a)
+
+                    this.score += this.questions_begin[0].a
+                    if (this.questions_begin.length > 9) {
+                        this.score_h += this.questions_begin[0].a
+                    } else if (this.questions_begin.length > 6) {
+                        this.score_d += this.questions_begin[0].a
+                    } else if (this.questions_begin.length > 3) {
+                        this.score_q += this.questions_begin[0].a
+                    } else {
+                        this.score_c += this.questions_begin[0].a
+                    }
+                    this.questions_begin.shift()
+                },
+                btnValue_beginB: function () {
+
+                    this.selection = "どちらでもない"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_begin[0])
+                    this.backupscore.push(this.questions_begin[0].b)
+
+                    this.score += this.questions_begin[0].b
+                    if (this.questions_begin.length > 9) {
+                        this.score_h += this.questions_begin[0].b
+                    } else if (this.questions_begin.length > 6) {
+                        this.score_d += this.questions_begin[0].b
+                    } else if (this.questions_begin.length > 3) {
+                        this.score_q += this.questions_begin[0].b
+                    } else {
+                        this.score_c += this.questions_begin[0].b
+                    }
+                    this.questions_begin.shift()
+                },
+                btnValue_beginC: function () {
+
+                    this.selection = "いいえ"
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_begin[0])
+                    this.backupscore.push(this.questions_begin[0].c)
+
+                    this.score += this.questions_begin[0].c
+                    if (this.questions_begin.length > 9) {
+                        this.score_h += this.questions_begin[0].c
+                    } else if (this.questions_begin.length > 6) {
+                        this.score_d += this.questions_begin[0].c
+                    } else if (this.questions_begin.length > 3) {
+                        this.score_q += this.questions_begin[0].c
+                    } else {
+                        this.score_c += this.questions_begin[0].c
+                    }
+                    this.questions_begin.shift()
+                },
+
+                beginBack: function () {
+                    this.questions_begin.unshift(this.backup[this.backup.length - 1])
+                    this.backup.pop()
+                    this.resultArray.pop()
+
+                    this.score -= this.backupscore[this.backup.length]
+
+                    if (this.backup.length < 3) {
+                        this.score_h -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 6) {
+                        this.score_d -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 9) {
+                        this.score_q -= this.backupscore[this.backup.length]
+                    } else {
+                        this.score_c -= this.backupscore[this.backup.length]
+                    }
+
+                    this.backupscore.pop()
+                },
+                // 初級編
+
+
+                btnValue_leaderA: function () {
+
+                    this.selection = this.questions_leader[0].q1
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_leader[0])
+                    this.backupscore.push(this.questions_leader[0].a)
+
+                    this.score += this.questions_leader[0].a
+                    if (this.questions_leader.length > 9) {
+                        this.score_h += this.questions_leader[0].a
+                    } else if (this.questions_leader.length > 6) {
+                        this.score_d += this.questions_leader[0].a
+                    } else if (this.questions_leader.length > 3) {
+                        this.score_q += this.questions_leader[0].a
+                    } else {
+                        this.score_c += this.questions_leader[0].a
+                    }
+                    this.questions_leader.shift()
+                },
+                btnValue_leaderB: function () {
+
+                    this.selection = this.questions_leader[0].q2
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_leader[0])
+                    this.backupscore.push(this.questions_leader[0].b)
+
+                    this.score += this.questions_leader[0].b
+                    if (this.questions_leader.length > 9) {
+                        this.score_h += this.questions_leader[0].b
+                    } else if (this.questions_leader.length > 6) {
+                        this.score_d += this.questions_leader[0].b
+                    } else if (this.questions_leader.length > 3) {
+                        this.score_q += this.questions_leader[0].b
+                    } else {
+                        this.score_c += this.questions_leader[0].b
+                    }
+                    this.questions_leader.shift()
+                },
+                btnValue_leaderC: function () {
+
+                    this.selection = this.questions_leader[0].q3
+                    this.resultArray.push(this.selection)
+                    this.selection = ""
+
+                    this.backup.push(this.questions_leader[0])
+                    this.backupscore.push(this.questions_leader[0].c)
+
+                    this.score += this.questions_leader[0].c
+                    if (this.questions_leader.length > 9) {
+                        this.score_h += this.questions_leader[0].c
+                    } else if (this.questions_leader.length > 6) {
+                        this.score_d += this.questions_leader[0].c
+                    } else if (this.questions_leader.length > 3) {
+                        this.score_q += this.questions_leader[0].c
+                    } else {
+                        this.score_c += this.questions_leader[0].c
+                    }
+                    this.questions_leader.shift()
+                },
+
+                leaderBack: function () {
+                    this.questions_leader.unshift(this.backup[this.backup.length - 1])
+                    this.backup.pop()
+                    this.resultArray.pop()
+
+                    this.score -= this.backupscore[this.backup.length]
+
+                    if (this.backup.length < 3) {
+                        this.score_h -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 6) {
+                        this.score_d -= this.backupscore[this.backup.length]
+                    } else if (this.backup.length < 9) {
+                        this.score_q -= this.backupscore[this.backup.length]
+                    } else {
+                        this.score_c -= this.backupscore[this.backup.length]
+                    }
+
+                    this.backupscore.pop()
+                },
+                // 上級編
+
+                resultClick: function () {
+                    this.result = true
+
+                },
+
+                allSushitype: function () {
+                    this.issushitype = true
+                },
+                answerHistory: function () {
+                    this.isanswerhistory = true
+                },
+                backToResult: function () {
+                    this.issushitype = false
+                    this.isanswerhistory = false
+                },
+
+
+                doCheat() {
+                    // this.$destroy();
+                    // this.$el.parentNode.removeChild(this.$el);
+                    this.cheat = true,
+                        this.start = true,
+                        this.basic = false
+                }
+                // チート用
+            }
+
+
+
+        })
+    </script>
+
+</body>
+
+</html>

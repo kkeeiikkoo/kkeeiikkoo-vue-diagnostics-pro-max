@@ -240,7 +240,7 @@ footer {
   width: 60%;
   height: fit-content;
   padding-bottom: 2rem;
-  margin: auto;
+  margin: 0 auto 5rem;
   -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }

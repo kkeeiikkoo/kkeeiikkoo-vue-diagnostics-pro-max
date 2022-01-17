@@ -238,7 +238,8 @@ footer {
   background-color: white;
   border-radius: 15px;
   width: 60%;
-  height: 500px;
+  height: fit-content;
+  padding-bottom: 2rem;
   margin: auto;
   -webkit-box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
           box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
